@@ -66,6 +66,8 @@ int main() {
     auto sourceCFolderPath =
         GetHappyPath("C:/Code/mrowrpurr/usvfs-cli/fixtures/source_folder/SourceC");
 
+    auto overwriteFolderPath = GetHappyPath("C:/Code/mrowrpurr/usvfs-cli/fixtures/overwrite");
+
     auto destFolderPath = GetHappyPath("C:/Code/mrowrpurr/usvfs-cli/fixtures/destination_folder");
 
     VirtualLinkDirectoryStatic(
@@ -76,6 +78,9 @@ int main() {
     );
     VirtualLinkDirectoryStatic(
         sourceCFolderPath.c_str(), destFolderPath.c_str(), LINKFLAG_RECURSIVE
+    );
+    VirtualLinkDirectoryStatic(
+        overwriteFolderPath.c_str(), destFolderPath.c_str(), LINKFLAG_CREATETARGET
     );
 
     std::cout << "Running program..." << std::endl;
