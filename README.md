@@ -1,2 +1,3 @@
-# usvfs-cli
-Command Line Interface for usvfs
+# `usvfs.exe`
+
+> Command Line Interface for [usvfs](https://github.com/ModOrganizer2/usvfs)
