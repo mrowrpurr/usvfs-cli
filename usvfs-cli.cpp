@@ -48,7 +48,7 @@ bool RunProgram(const std::string& program, const std::string& workingDirectory)
 int main() {
     auto params = usvfsCreateParameters();
     usvfsSetInstanceName(params, "my_usvfs");
-    usvfsSetDebugMode(params, true);
+    usvfsSetDebugMode(params, false);  // No UI popup when this is false
     usvfsSetLogLevel(params, LogLevel::Debug);
     usvfsSetCrashDumpType(params, CrashDumpsType::Full);
     usvfsSetCrashDumpPath(params, "crash.log");
