@@ -1,0 +1,17 @@
+{
+  "folders": [
+    {
+      "path": ".",
+      "name": "📂 usvfs-cli"
+    }
+  ],
+  "extensions": {
+    "recommendations": [
+      "tboox.xmake-vscode",
+      "llvm-vs-code-extensions.vscode-clangd"
+    ]
+  },
+  "settings": {
+    "window.title": "📂 usvfs-cli"
+  }
+}
