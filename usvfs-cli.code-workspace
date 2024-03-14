@@ -12,6 +12,25 @@
     ]
   },
   "settings": {
-    "window.title": "📂 usvfs-cli"
+    "window.title": "📂 usvfs-cli",
+    "[cpp]": {
+      "editor.wordBasedSuggestions": "off",
+      "editor.suggest.insertMode": "replace",
+      "editor.semanticHighlighting.enabled": true,
+      "editor.codeActionsOnSave": {
+        "source.fixAll": "explicit"
+      },
+      "editor.formatOnSave": true,
+      "editor.defaultFormatter": "xaver.clang-format"
+    },
+    "clangd.arguments": [
+      "--compile-commands-dir=${workspaceFolder}/compile_commands",
+      "--completion-style=detailed",
+      "--header-insertion=never",
+      "-log=verbose",
+      "-pretty",
+      "--background-index"
+    ],
+    "xmake.compileCommandsDirectory": "compile_commands"
   }
 }

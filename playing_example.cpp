@@ -6,7 +6,6 @@
 
 #include <usvfs.h>
 
-#include <boost/filesystem.hpp>
 #include <iostream>
 #include <string>
 

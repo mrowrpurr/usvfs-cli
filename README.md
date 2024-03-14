@@ -6,6 +6,9 @@
   - [What?](#what)
   - [Why?](#why)
   - [Installation](#installation)
+  - [Usage](#usage)
+    - [Command Line Interface](#command-line-interface)
+    - [WebSocket Interface](#websocket-interface)
   - [Building](#building)
   - [License](#license)
   - [Licensing notes from usvfs](#licensing-notes-from-usvfs)
@@ -23,6 +26,18 @@
 
 ...
 
+## Usage
+
+...
+
+### Command Line Interface
+
+...
+
+### WebSocket Interface
+
+...
+
 ## Building
 
 These instructions are for building `usvfs.exe` on Windows.
@@ -35,15 +50,10 @@ These instructions are for building `usvfs.exe` on Windows.
    >
    > _Note the directory that you install to!_
 
-2. Set the `BOOST_ROOT` environment variable to the directory where you installed Boost
-   > e.g. `C:\local\boost_1_79_0`
-   >
-   > _Note: this is not required for building `usvfs`, it's only used for building usvfs.exe`
-
-3. Download `usvfs` source code from https://github.com/ModOrganizer2/usvfs.git
+2. Download `usvfs` source code from https://github.com/ModOrganizer2/usvfs.git
    > e.g. `git clone --recurse-submodules https://github.com/ModOrganizer2/usvfs.git`
 
-4. Build `usvfs` using Visual Studio (_open the `usvfs\vsbuild\usvfs.sln` solution_)
+3. Build `usvfs` using Visual Studio (_open the `usvfs\vsbuild\usvfs.sln` solution_)
    > In Visual Studio, select `Release` and `x64` and build the solution.
    >
    > It will fail due to missing `boost` headers and libraries, but that's okay.
@@ -52,8 +62,10 @@ These instructions are for building `usvfs.exe` on Windows.
    >
    > In the "VC++ Directories" section, add the path to the `boost` headers and libraries.
 
-5. Set the `USVFS_ROOT` environment variable to the directory where you cloned `usvfs`
+4. Set the `USVFS_ROOT` environment variable to the directory where you cloned `usvfs`
    > e.g. `C:\path\to\usvfs`
+
+5. Build using `xmake`
 
 ## License
 
