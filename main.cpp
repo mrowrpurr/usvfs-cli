@@ -23,19 +23,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    auto  options       = *parsedOptions;
-    auto& serverOptions = options.webSocketServerOptions;
-    // ..
-
-    auto& processes = options.processes;
-    cout << "Processes: " << processes.size() << endl;
-    for (auto& process : processes) {
-        cout << "Process: " << process.command << endl;
-        for (auto& arg : process.arguments) {
-            cout << "  Arg: " << arg << endl;
-        }
-        cout << "  CWD: " << process.workingDirectory << endl;
-    }
+    cout << "Parsed options" << endl;
 
     return 0;
 }

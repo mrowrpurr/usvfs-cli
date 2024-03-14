@@ -8,9 +8,9 @@
 using namespace std;
 
 struct WebSocketServerOptions {
-    bool           runServer     = false;
-    unsigned short port          = 8080;
-    string         serverAddress = "localhost";
+    bool           runServer;
+    unsigned short port;
+    string         serverAddress;
 };
 
 struct LaunchProcess {
@@ -49,22 +49,45 @@ struct CommandOptions {
 };
 
 inline optional<CommandOptions> ParseOptions(int argc, char* argv[]) {
+    bool           runServer     = false;
+    unsigned int   port          = 8080;
+    string         serverAddress = "localhost";
     vector<string> processesJson;
+    vector<string> virtualFileLinksJson;
+    vector<string> virtualDirectoryLinksJson;
+    vector<string> virtualOnCreateLinksJson;
 
     argumentum::argument_parser parser;
     auto                        params = parser.params();
 
     parser.config().program("usvfs-cli").description("usvfs command line interface");
 
-    params.add_parameter(processesJson, "--process", "-p").minargs(1).help("Processes to launch");
+    params.add_parameter(runServer, "--run-server", "-w").help("Run the web socket server");
+    params.add_parameter(port, "--port", "-p").help("Port for the web socket server");
+    params.add_parameter(serverAddress, "--server-address", "-h").help("Address for the web socket server");
+    params.add_parameter(processesJson, "--process", "-c").minargs(1).help("Processes to launch");
+    params.add_parameter(virtualFileLinksJson, "--link-file", "-f").minargs(1).help("Virtual file links");
+    params.add_parameter(virtualDirectoryLinksJson, "--link-directory", "-d")
+        .minargs(1)
+        .help("Virtual directory links");
+    params.add_parameter(virtualOnCreateLinksJson, "--link-on-create", "-c")
+        .help("Virtual on create links (overwrite folders)");
 
     if (!parser.parse_args(argc, argv, 1)) return nullopt;
 
     CommandOptions options;
 
-    for (auto& processJson : processesJson) {
-        options.processes.push_back(nlohmann::json::parse(processJson));
-    }
+    options.webSocketServerOptions.runServer     = runServer;
+    options.webSocketServerOptions.port          = port;
+    options.webSocketServerOptions.serverAddress = serverAddress;
+
+    for (auto& processJson : processesJson) options.processes.push_back(nlohmann::json::parse(processJson));
+    for (auto& linkJson : virtualFileLinksJson)
+        options.virtualLinks.push_back({VirtualLinkType::File, nlohmann::json::parse(linkJson)});
+    for (auto& linkJson : virtualDirectoryLinksJson)
+        options.virtualLinks.push_back({VirtualLinkType::Directory, nlohmann::json::parse(linkJson)});
+    for (auto& linkJson : virtualOnCreateLinksJson)
+        options.virtualLinks.push_back({VirtualLinkType::OnCreate, nlohmann::json::parse(linkJson)});
 
     return options;
 }
