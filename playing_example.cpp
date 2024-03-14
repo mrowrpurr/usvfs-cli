@@ -90,6 +90,8 @@ int main() {
         overwriteFolderPath.c_str(), destFolderPath.c_str(), LINKFLAG_CREATETARGET
     );
 
+    // VirtualLinkFile(LPCWSTR source, LPCWSTR destination, unsigned int flags)
+
     std::cout << "Running program..." << std::endl;
     if (RunProgram("C:/Program Files/Notepad++/notepad++.exe", workingDirectory)) {
         // if (RunProgram("c:/Program Files/Kate/bin/kate.exe", workingDirectory)) {

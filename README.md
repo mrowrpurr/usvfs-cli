@@ -3,42 +3,71 @@
 > Command Line Interface for [usvfs](https://github.com/ModOrganizer2/usvfs)
 
 - [`$ usvfs.exe`](#-usvfsexe)
-  - [What?](#what)
-  - [Why?](#why)
-  - [Installation](#installation)
-  - [Usage](#usage)
-    - [Command Line Interface](#command-line-interface)
-    - [WebSocket Interface](#websocket-interface)
-  - [Building](#building)
+- [What?](#what)
+- [Why?](#why)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Command Line Interface](#command-line-interface)
+    - [Usage examples](#usage-examples)
+    - [Running processes via the CLI](#running-processes-via-the-cli)
+    - [Starting a websocket server via the CLI](#starting-a-websocket-server-via-the-cli)
+  - [WebSocket Interface](#websocket-interface)
+- [Building](#building)
   - [License](#license)
   - [Licensing notes from usvfs](#licensing-notes-from-usvfs)
 
 
-## What?
+# What?
 
 ...
 
-## Why?
+# Why?
 
 ...
 
-## Installation
+# Installation
 
 ...
 
-## Usage
+# Usage
 
 ...
 
-### Command Line Interface
+## Command Line Interface
+
+The command-line interface can be used to either:
+- (a) run one or more processes with `usvfs` injected for virtual file system access
+- (b) start a websocket server
+
+### Usage examples
+
+```sh
+# Run a single process with usvfs injected
+usvfs.exe \
+   --process '{"path":"C:/path/to/program.exe"}' \
+   --link-on-create '{"source":"C:/actual/path","overwrite":"C:/overwrite-folder"}' \
+   --link-dir '{"source":"C:/actual/path","target":"C:/virtual/path"}' \
+   --link-file '{"source":"C:/actual/file.txt","target":"C:/virtual/file.txt"}'
+```
+
+### Running processes via the CLI
+
+You can run one or more processes with `usvfs` injected for virtual file system access.
+
+For each process you want to run:
+
+```sh
+usvfs.exe --process '{"path":"C:/path/to/program.exe"}'
+```
+
+### Starting a websocket server via the CLI
+
+
+## WebSocket Interface
 
 ...
 
-### WebSocket Interface
-
-...
-
-## Building
+# Building
 
 These instructions are for building `usvfs.exe` on Windows.
 
