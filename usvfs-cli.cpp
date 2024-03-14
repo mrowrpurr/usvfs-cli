@@ -7,9 +7,7 @@
 #include <usvfs.h>
 
 #include <boost/filesystem.hpp>
-#include <codecvt>
 #include <iostream>
-#include <locale>
 #include <string>
 
 // Le sigh.
@@ -94,8 +92,8 @@ int main() {
     );
 
     std::cout << "Running program..." << std::endl;
-    // if (RunProgram("C:/Program Files/Notepad++/notepad++.exe", workingDirectory)) {
-    if (RunProgram("c:/Program Files/Kate/bin/kate.exe", workingDirectory)) {
+    if (RunProgram("C:/Program Files/Notepad++/notepad++.exe", workingDirectory)) {
+        // if (RunProgram("c:/Program Files/Kate/bin/kate.exe", workingDirectory)) {
         std::cout << "Program finished" << std::endl;
     } else {
         std::cout << "Failed to run program" << std::endl;
