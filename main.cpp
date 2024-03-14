@@ -6,8 +6,7 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
     // vector<string> fakeArguments = {
-    //     "program.exe", "--process",
-    //     "{\"path\":\"C:\\\\Program Files\\\\Notepad++\\\\notepad++.exe\"}"
+    //     "program.exe", "--process", "{\"path\":\"C:\\\\Program Files\\\\Notepad++\\\\notepad++.exe\"}"
     // };
     // int    fakeArgc = fakeArguments.size();
     // char** fakeArgv = new char*[fakeArgc];
@@ -21,6 +20,13 @@ int main(int argc, char* argv[]) {
     if (!parsedOptions) {
         cout << "Failed to parse options" << endl;
         return 1;
+    }
+
+    if (parsedOptions->webSocketServerOptions.runServer) {
+        cout << "Running server on port " << parsedOptions->webSocketServerOptions.port << " at "
+             << parsedOptions->webSocketServerOptions.serverAddress << endl;
+    } else {
+        cout << "Not running server" << endl;
     }
 
     cout << "Parsed options" << endl;

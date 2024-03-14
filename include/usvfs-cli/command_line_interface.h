@@ -49,9 +49,9 @@ struct CommandOptions {
 };
 
 inline optional<CommandOptions> ParseOptions(int argc, char* argv[]) {
-    bool           runServer     = false;
-    unsigned int   port          = 8080;
-    string         serverAddress = "localhost";
+    bool           runServer;
+    unsigned int   port;
+    string         serverAddress;
     vector<string> processesJson;
     vector<string> virtualFileLinksJson;
     vector<string> virtualDirectoryLinksJson;
@@ -63,8 +63,10 @@ inline optional<CommandOptions> ParseOptions(int argc, char* argv[]) {
     parser.config().program("usvfs-cli").description("usvfs command line interface");
 
     params.add_parameter(runServer, "--run-server", "-w").help("Run the web socket server");
-    params.add_parameter(port, "--port", "-p").help("Port for the web socket server");
-    params.add_parameter(serverAddress, "--server-address", "-h").help("Address for the web socket server");
+    params.add_parameter(port, "--port", "-p").default_value(8080).help("Port for the web socket server");
+    params.add_parameter(serverAddress, "--server-address", "-h")
+        .default_value("localhost")
+        .help("Address for the web socket server");
     params.add_parameter(processesJson, "--process", "-c").minargs(1).help("Processes to launch");
     params.add_parameter(virtualFileLinksJson, "--link-file", "-f").minargs(1).help("Virtual file links");
     params.add_parameter(virtualDirectoryLinksJson, "--link-directory", "-d")
@@ -80,6 +82,7 @@ inline optional<CommandOptions> ParseOptions(int argc, char* argv[]) {
     options.webSocketServerOptions.runServer     = runServer;
     options.webSocketServerOptions.port          = port;
     options.webSocketServerOptions.serverAddress = serverAddress;
+    if (runServer) return options;
 
     for (auto& processJson : processesJson) options.processes.push_back(nlohmann::json::parse(processJson));
     for (auto& linkJson : virtualFileLinksJson)
@@ -88,6 +91,5 @@ inline optional<CommandOptions> ParseOptions(int argc, char* argv[]) {
         options.virtualLinks.push_back({VirtualLinkType::Directory, nlohmann::json::parse(linkJson)});
     for (auto& linkJson : virtualOnCreateLinksJson)
         options.virtualLinks.push_back({VirtualLinkType::OnCreate, nlohmann::json::parse(linkJson)});
-
     return options;
 }
