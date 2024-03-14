@@ -4,8 +4,8 @@ if not usvfs_root then
     print("The environment variable 'USVFS_ROOT' must be set!")
 elseif not os.isdir(usvfs_root) then
     print("The environment variable 'USVFS_ROOT' does not point to a valid directory!")
-else
-    print("Using USVFS_ROOT: " .. usvfs_root)
+-- else
+--     print("Using USVFS_ROOT: " .. usvfs_root)
 end
 
 -- Note: using Boost 1.79.0, precompiled binaries for Windows
@@ -15,8 +15,8 @@ if not boost_root then
     print("The environment variable 'BOOST_ROOT' must be set!")
 elseif not os.isdir(boost_root) then
     print("The environment variable 'BOOST_ROOT' does not point to a valid directory!")
-else
-    print("Using BOOST_ROOT: " .. boost_root)
+-- else
+--     print("Using BOOST_ROOT: " .. boost_root)
 end
 
 add_rules("mode.debug", "mode.release")
@@ -29,7 +29,7 @@ target("usvfs-cli")
 
     -- usvfs.exe
     set_basename("usvfs")
-    
+
     add_files("usvfs-cli.cpp")
 
     -- usvfs
