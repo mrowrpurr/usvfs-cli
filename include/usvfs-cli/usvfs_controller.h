@@ -59,9 +59,11 @@ class UsvfsController {
     }
 
     bool runProcess(const LaunchProcess& process) {
-        auto executablePath   = GetWideString(process.executable);
+        auto executablePath = GetWideString(process.executable);
+        std::cout << "Executable path: " << process.executable << std::endl;
         auto workingDirectory = GetWideString(process.workingDirectory);
-        auto args             = GetWideString(process.arguments);
+        std::cout << "Working directory: " << process.workingDirectory << std::endl;
+        // auto args             = GetWideString(process.arguments);
 
         STARTUPINFOW si        = {};
         si.cb                  = sizeof(si);
@@ -70,13 +72,18 @@ class UsvfsController {
         auto lpApplicationName  = std::wstring{executablePath};
         auto lpWorkingDirectory = workingDirectory;
 
+        std::cout << "Creating process" << std::endl;
         auto success = CreateProcessHooked(
-            lpApplicationName.c_str(), args.data(), NULL, NULL, FALSE, 0, NULL, lpWorkingDirectory.c_str(), &si, &pi
+            lpApplicationName.c_str(), NULL, NULL, NULL, FALSE, 0, NULL, lpWorkingDirectory.c_str(), &si, &pi
         );
+        std::cout << "Process created" << std::endl;
 
         if (success) {
+            std::cout << "Process created successfully" << std::endl;
             _processHandles.push_back(pi.hProcess);
+            std::cout << "Process handle added" << std::endl;
             CloseHandle(pi.hThread);
+            std::cout << "Thread handle closed" << std::endl;
             return true;
         } else {
             std::cout << "Failed to create process" << std::endl;
@@ -99,9 +106,13 @@ public:
         : _links(links), _processes(processes) {}
 
     void run_blocking() {
+        std::cout << "Initializing usvfs" << std::endl;
         initializeUsvfs();
+        std::cout << "Setting up links" << std::endl;
         setupLinks();
+        std::cout << "Running processes" << std::endl;
         runProcesses();
+        std::cout << "Waiting for processes" << std::endl;
         waitForProcesses();
         DisconnectVFS();
     }

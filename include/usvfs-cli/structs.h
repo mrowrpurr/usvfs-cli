@@ -10,7 +10,7 @@ struct WebSocketServerOptions {
 };
 
 struct LaunchProcess {
-    std::string executable;  // TODO: rename to executable or executablePath or something better
+    std::string executable;
     std::string arguments;
     std::string workingDirectory;
 };
