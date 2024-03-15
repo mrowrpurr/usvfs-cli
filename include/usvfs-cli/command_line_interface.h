@@ -1,3 +1,5 @@
+#pragma once
+
 #include <argumentum/argparse.h>
 
 #include <nlohmann/json.hpp>
@@ -5,57 +7,17 @@
 #include <string>
 #include <vector>
 
-using namespace std;
+#include "usvfs-cli/json.h"  // IWYU pragma: keep
+#include "usvfs-cli/structs.h"
 
-struct WebSocketServerOptions {
-    bool           runServer;
-    unsigned short port;
-    string         serverAddress;
-};
-
-struct LaunchProcess {
-    string         command;
-    vector<string> arguments;
-    string         workingDirectory;
-};
-
-void from_json(const nlohmann::json& j, LaunchProcess& d) {
-    j.at("path").get_to(d.command);
-    if (j.contains("args")) j.at("args").get_to(d.arguments);
-    if (j.contains("cwd")) j.at("cwd").get_to(d.workingDirectory);
-}
-
-enum class VirtualLinkType {
-    Directory,
-    File,
-    OnCreate,
-};
-
-struct VirtualLink {
-    VirtualLinkType type;
-    string          source;
-    string          target;
-};
-
-void from_json(const nlohmann::json& j, VirtualLink& d) {
-    j.at("source").get_to(d.source);
-    j.at("target").get_to(d.target);
-}
-
-struct CommandOptions {
-    WebSocketServerOptions webSocketServerOptions;
-    vector<LaunchProcess>  processes{};
-    vector<VirtualLink>    virtualLinks{};
-};
-
-inline optional<CommandOptions> ParseOptions(int argc, char* argv[]) {
-    bool           runServer;
-    unsigned int   port;
-    string         serverAddress;
-    vector<string> processesJson;
-    vector<string> virtualFileLinksJson;
-    vector<string> virtualDirectoryLinksJson;
-    vector<string> virtualOnCreateLinksJson;
+inline std::optional<CommandOptions> ParseOptions(int argc, char* argv[]) {
+    bool                     runServer;
+    unsigned int             port;
+    std::string              serverAddress;
+    std::vector<std::string> processesJson;
+    std::vector<std::string> virtualFileLinksJson;
+    std::vector<std::string> virtualDirectoryLinksJson;
+    std::vector<std::string> virtualOnCreateLinksJson;
 
     argumentum::argument_parser parser;
     auto                        params = parser.params();
@@ -75,7 +37,7 @@ inline optional<CommandOptions> ParseOptions(int argc, char* argv[]) {
     params.add_parameter(virtualOnCreateLinksJson, "--link-on-create", "-c")
         .help("Virtual on create links (overwrite folders)");
 
-    if (!parser.parse_args(argc, argv, 1)) return nullopt;
+    if (!parser.parse_args(argc, argv, 1)) return std::nullopt;
 
     CommandOptions options;
 

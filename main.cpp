@@ -1,8 +1,10 @@
 #include <iostream>
+#include <memory>
 
 #include "usvfs-cli/command_line_interface.h"
+#include "usvfs-cli/usvfs_controller.h"
 
-using namespace std;
+std::unique_ptr<UsvfsController> usvfsController = nullptr;
 
 int main(int argc, char* argv[]) {
     // vector<string> fakeArguments = {
@@ -18,18 +20,18 @@ int main(int argc, char* argv[]) {
     auto parsedOptions = ParseOptions(argc, argv);
 
     if (!parsedOptions) {
-        cout << "Failed to parse options" << endl;
+        std::cout << "Failed to parse options" << std::endl;
         return 1;
     }
 
     if (parsedOptions->webSocketServerOptions.runServer) {
-        cout << "Running server on port " << parsedOptions->webSocketServerOptions.port << " at "
-             << parsedOptions->webSocketServerOptions.serverAddress << endl;
+        std::cout << "Running server on port " << parsedOptions->webSocketServerOptions.port << " at "
+                  << parsedOptions->webSocketServerOptions.serverAddress << std::endl;
     } else {
-        cout << "Not running server" << endl;
+        std::cout << "Not running server" << std::endl;
     }
 
-    cout << "Parsed options" << endl;
+    std::cout << "Parsed options" << std::endl;
 
     return 0;
 }
