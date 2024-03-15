@@ -52,7 +52,8 @@ class UsvfsController {
                     VirtualLinkDirectoryStatic(sourcePath.c_str(), targetPath.c_str(), LINKFLAG_RECURSIVE);
                     break;
                 case VirtualLinkType::OnCreate:
-                    VirtualLinkDirectoryStatic(sourcePath.c_str(), targetPath.c_str(), LINKFLAG_CREATETARGET);
+                    // targetPath: the "overwrite folder"
+                    VirtualLinkDirectoryStatic(targetPath.c_str(), sourcePath.c_str(), LINKFLAG_CREATETARGET);
                     break;
             }
         }
