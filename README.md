@@ -5,70 +5,41 @@
 - [`$ usvfs.exe`](#-usvfsexe)
 - [What?](#what)
 - [Why?](#why)
-- [Installation](#installation)
 - [Usage](#usage)
-  - [Command Line Interface](#command-line-interface)
-    - [Usage examples](#usage-examples)
-    - [Running processes via the CLI](#running-processes-via-the-cli)
-    - [Starting a websocket server via the CLI](#starting-a-websocket-server-via-the-cli)
-  - [WebSocket Interface](#websocket-interface)
-- [Building](#building)
+- [Installation](#installation)
+  - [⬇️ Download](#️-download)
+  - [🛠️ Build](#️-build)
   - [License](#license)
   - [Licensing notes from usvfs](#licensing-notes-from-usvfs)
-- [NOTES](#notes)
 
 
 # What?
 
-...
+Command-line interface for [USVFS](https://github.com/ModOrganizer2/usvfs) (short for User Space Virtual File System).
+
+> `usvfs`
+>
+> USVFS (short for User Space Virtual File System) aims to allow windows applications to create file or directory links that are visible to only a select set of processes. It does so by using api hooking to fool file access functions into discovering/opening files that are in fact somewhere else.
+
+> `USVFS` is released under the GNU General Public License v3.0 (_with additional permissions granted for dynamic linking and distribution_)
+> https://github.com/ModOrganizer2/usvfs/blob/master/LICENSE
+
+
+```
+usvfs - User-Space Virtual File System, Copyright (C) Sebastian Herbord
+```
 
 # Why?
 
-...
-
-# Installation
-
-...
+So that I can virtualize files/folders and inject them into processes from the command line.
 
 # Usage
 
-...
+# Installation
 
-## Command Line Interface
+## ⬇️ Download
 
-The command-line interface can be used to either:
-- (a) run one or more processes with `usvfs` injected for virtual file system access
-- (b) start a websocket server
-
-### Usage examples
-
-```sh
-# Run a single process with usvfs injected
-usvfs.exe \
-   --process '{"path":"C:/path/to/program.exe"}' \
-   --link-on-create '{"source":"C:/actual/path","overwrite":"C:/overwrite-folder"}' \
-   --link-dir '{"source":"C:/actual/path","target":"C:/virtual/path"}' \
-   --link-file '{"source":"C:/actual/file.txt","target":"C:/virtual/file.txt"}'
-```
-
-### Running processes via the CLI
-
-You can run one or more processes with `usvfs` injected for virtual file system access.
-
-For each process you want to run:
-
-```sh
-usvfs.exe --process '{"path":"C:/path/to/program.exe"}'
-```
-
-### Starting a websocket server via the CLI
-
-
-## WebSocket Interface
-
-...
-
-# Building
+## 🛠️ Build
 
 These instructions are for building `usvfs.exe` on Windows.
 
@@ -99,7 +70,11 @@ These instructions are for building `usvfs.exe` on Windows.
 
 ## License
 
+`usvfs.exe` is licensed under the [BSD Zero Clause License](https://opensource.org/licenses/0BSD).
+
 Use however, no attribution required.
+
+_However,_ `usvfs` itself is licensed under the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html) (_with additional permissions granted for_)
 
 ```
 BSD Zero Clause License (SPDX: 0BSD)
@@ -122,20 +97,21 @@ THIS SOFTWARE.
 https://github.com/ModOrganizer2/usvfs/blob/master/LICENSE
 
 ```
+...
+
 Additional permissions are granted under GNU GPL version 3 section 7 to Free and Open Source Software ("FOSS") without requiring that such software is covered by the GPLv3.
 
   1. Permission to link with the usvfs_x64.dll and/or usvfs_x86.dll
 
   2. Permission to distribute unmodified binary copies of the usvfs library
-```
 
-# NOTES
+Theses permissions (and no other) are granted provided that the software:
 
-```
-xmake run usvfs-cli --process '{"path":"C:/Program Files/Notepad++/notepad++.exe","cwd":"C:/"}' --link-directory '{"source":"C:/Code/mrowrpurr/usvfs-cli/fixtures/source_folder","target":"C:/Code/mrowrpurr/usvfs-cli/fixtures/destination_folder"}' --link-on-create '{"source":"C:/Code/mrowrpurr/usvfs-cli/fixtures/destination_folder","target":"C:/Code/mrowrpurr/usvfs-cli/fixtures/overwrite"}' --link-directory '{"source":"C:/Code/mrowrpurr/usvfs-cli/fixtures/overwrite","target":"C:/Code/mrowrpurr/usvfs-cli/fixtures/destination_folder"}'
+  1. Is distributed under a license that satisfies the Free Software Definition (https://www.gnu.org/philosophy/free-sw.en.html) or the Open Source Definition Version (https://opensource.org/osd)
 
-xmake run usvfs-cli --link-directory '{"source":"C:/Code/mrowrpurr/usvfs-cli/fixtures/source_folder","target":"C:/Code/mrowrpurr/usvfs-cli/fixtures/destination_folder"}' --link-on-create '{"source":"C:/Code/mrowrpurr/usvfs-cli/fixtures/destination_folder","target":"C:/Code/mrowrpurr/usvfs-cli/fixtures/overwrite"}' --link-directory '{"source":"C:/Code/mrowrpurr/usvfs-cli/fixtures/overwrite","target":"C:/Code/mrowrpurr/usvfs-cli/fixtures/destination_folder"}'
+  2. Includes the copyright notice "usvfs - User-Space Virtual File System, Copyright (C) Sebastian Herbord", a copy of this license and a link to the usvfs repository in its user-interface and any user-facing documentation.
 
+  3. Is not linked or distributed with proprietary (non-FOSS) software.
 
-{"path":"C:/Program Files/Microsoft VS Code/Code.exe","cwd":"C:/"}
+...
 ```

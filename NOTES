@@ -1,0 +1,5 @@
+xmake run usvfs-cli --process '{"path":"C:/Program Files/Notepad++/notepad++.exe","cwd":"C:/"}' --link-directory '{"source":"C:/Code/mrowrpurr/usvfs-cli/fixtures/source_folder","target":"C:/Code/mrowrpurr/usvfs-cli/fixtures/destination_folder"}' --link-on-create '{"source":"C:/Code/mrowrpurr/usvfs-cli/fixtures/destination_folder","target":"C:/Code/mrowrpurr/usvfs-cli/fixtures/overwrite"}' --link-directory '{"source":"C:/Code/mrowrpurr/usvfs-cli/fixtures/overwrite","target":"C:/Code/mrowrpurr/usvfs-cli/fixtures/destination_folder"}'
+
+xmake run usvfs-cli --link-directory '{"source":"C:/Code/mrowrpurr/usvfs-cli/fixtures/source_folder","target":"C:/Code/mrowrpurr/usvfs-cli/fixtures/destination_folder"}' --link-on-create '{"source":"C:/Code/mrowrpurr/usvfs-cli/fixtures/destination_folder","target":"C:/Code/mrowrpurr/usvfs-cli/fixtures/overwrite"}' --link-directory '{"source":"C:/Code/mrowrpurr/usvfs-cli/fixtures/overwrite","target":"C:/Code/mrowrpurr/usvfs-cli/fixtures/destination_folder"}'
+
+{"path":"C:/Program Files/Microsoft VS Code/Code.exe","cwd":"C:/"}
