@@ -24,6 +24,7 @@ struct VirtualLink {
 };
 
 struct CommandOptions {
+    bool                       useStdinForProcesses = false;
     std::vector<LaunchProcess> processes{};
     std::vector<VirtualLink>   virtualLinks{};
 };

@@ -23,8 +23,6 @@ std::optional<LaunchProcess> ParseStandardInput(const std::string& input) {
     }
 }
 
-// TODO: close all processes on SIGINT
-
 int main(int argc, char* argv[]) {
     std::signal(SIGINT, signalHandler);
 
@@ -37,35 +35,50 @@ int main(int argc, char* argv[]) {
         std::cout << "No virtual links to create" << std::endl;
         return 1;
     }
+    if (!parsedOptions->useStdinForProcesses && parsedOptions->processes.empty()) {
+        std::cout << "No processes to launch" << std::endl;
+        return 1;
+    }
 
     usvfsController = std::make_unique<UsvfsController>();
+
     if (!usvfsController->AddVirtualLinks(parsedOptions->virtualLinks)) {
         std::cout << "Some virtual links failed" << std::endl;
     }
+
     if (!parsedOptions->processes.empty()) {
         for (const auto& process : parsedOptions->processes)
             if (!usvfsController->LaunchProcess(process)) std::cout << "Failed to launch process" << std::endl;
     }
 
-    std::cout << "Press CTRL-C to exit" << std::endl;
-    std::cout << "Enter JSON for new process to launch:" << std::endl;
-
-    std::string line;
-    while (std::getline(std::cin, line)) {
-        if (!line.empty()) {
-            auto process = ParseStandardInput(line);
-            if (process && process->IsValid()) {
-                if (!usvfsController->LaunchProcess(*process)) std::cout << "Failed to launch process" << std::endl;
-            } else {
-                std::cout << "Invalid input" << std::endl;
+    if (parsedOptions->useStdinForProcesses) {
+        std::cout << "Reading processes from stdin" << std::endl;
+        std::cout << "Press CTRL-C to exit" << std::endl;
+        std::cout << "Enter JSON for new process to launch:" << std::endl;
+        std::string line;
+        while (std::getline(std::cin, line)) {
+            if (!line.empty()) {
+                // TODO: allow also providing link files/folders via STDIN (?)
+                auto process = ParseStandardInput(line);
+                if (process && process->IsValid()) {
+                    if (!usvfsController->LaunchProcess(*process)) std::cout << "Failed to launch process" << std::endl;
+                } else {
+                    std::cout << "Invalid input" << std::endl;
+                }
+            }
+            if (_sigint) {
+                std::cout << "SIGINT received, stopping all processes..." << std::endl;
+                usvfsController->KillAllProcesses();
+                break;  // Exit the loop if SIGINT is received
             }
         }
-
-        if (_sigint) {
-            std::cout << "SIGINT received, waiting for all processes to terminate..." << std::endl;
-            break;  // Exit the loop if SIGINT is received
-        }
+    } else if (parsedOptions->processes.empty()) {
+        std::cout << "No processes to launch" << std::endl;
+        return 1;
     }
+
+    usvfsController->WaitForAllProcesses();
+    std::cout << "All processes have exited" << std::endl;
 
     return 0;
 }

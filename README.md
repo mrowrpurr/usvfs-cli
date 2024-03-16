@@ -15,6 +15,7 @@
 - [Building](#building)
   - [License](#license)
   - [Licensing notes from usvfs](#licensing-notes-from-usvfs)
+- [NOTES](#notes)
 
 
 # What?
@@ -126,4 +127,15 @@ Additional permissions are granted under GNU GPL version 3 section 7 to Free and
   1. Permission to link with the usvfs_x64.dll and/or usvfs_x86.dll
 
   2. Permission to distribute unmodified binary copies of the usvfs library
+```
+
+# NOTES
+
+```
+xmake run usvfs-cli --process '{"path":"C:/Program Files/Notepad++/notepad++.exe","cwd":"C:/"}' --link-directory '{"source":"C:/Code/mrowrpurr/usvfs-cli/fixtures/source_folder","target":"C:/Code/mrowrpurr/usvfs-cli/fixtures/destination_folder"}' --link-on-create '{"source":"C:/Code/mrowrpurr/usvfs-cli/fixtures/destination_folder","target":"C:/Code/mrowrpurr/usvfs-cli/fixtures/overwrite"}' --link-directory '{"source":"C:/Code/mrowrpurr/usvfs-cli/fixtures/overwrite","target":"C:/Code/mrowrpurr/usvfs-cli/fixtures/destination_folder"}'
+
+xmake run usvfs-cli --link-directory '{"source":"C:/Code/mrowrpurr/usvfs-cli/fixtures/source_folder","target":"C:/Code/mrowrpurr/usvfs-cli/fixtures/destination_folder"}' --link-on-create '{"source":"C:/Code/mrowrpurr/usvfs-cli/fixtures/destination_folder","target":"C:/Code/mrowrpurr/usvfs-cli/fixtures/overwrite"}' --link-directory '{"source":"C:/Code/mrowrpurr/usvfs-cli/fixtures/overwrite","target":"C:/Code/mrowrpurr/usvfs-cli/fixtures/destination_folder"}'
+
+
+{"path":"C:/Program Files/Microsoft VS Code/Code.exe","cwd":"C:/"}
 ```

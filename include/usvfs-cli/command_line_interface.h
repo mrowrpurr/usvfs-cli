@@ -11,6 +11,7 @@
 #include "usvfs-cli/structs.h"
 
 inline std::optional<CommandOptions> ParseOptions(int argc, char* argv[]) {
+    bool                     useStdinForProcesses = false;
     std::vector<std::string> processesJson;
     std::vector<std::string> virtualFileLinksJson;
     std::vector<std::string> virtualDirectoryLinksJson;
@@ -21,6 +22,7 @@ inline std::optional<CommandOptions> ParseOptions(int argc, char* argv[]) {
 
     parser.config().program("usvfs-cli").description("usvfs command line interface");
 
+    params.add_parameter(useStdinForProcesses, "--stdin", "-s").help("Read processes from stdin");
     params.add_parameter(processesJson, "--process", "-c").minargs(1).help("Processes to launch");
     params.add_parameter(virtualFileLinksJson, "--link-file", "-f").minargs(1).help("Virtual file links");
     params.add_parameter(virtualDirectoryLinksJson, "--link-directory", "-d")
@@ -37,7 +39,7 @@ inline std::optional<CommandOptions> ParseOptions(int argc, char* argv[]) {
         return std::nullopt;
     }
 
-    CommandOptions options;
+    CommandOptions options{useStdinForProcesses};
     try {
         for (auto& processJson : processesJson) {
             auto json = nlohmann::json::parse(processJson);

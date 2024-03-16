@@ -12,6 +12,7 @@
 #include "usvfs-cli/structs.h"
 
 class UsvfsController {
+    bool                _initialized = false;
     std::vector<HANDLE> _processHandles;
 
     std::wstring GetWideString(const std::string& text) {
@@ -26,59 +27,26 @@ class UsvfsController {
         return wideString;
     }
 
-    void initializeUsvfs() {
-        auto params = usvfsCreateParameters();
-        usvfsSetInstanceName(params, "my_usvfs");
-        usvfsSetDebugMode(params, false);  // No UI popup when this is false
-        usvfsSetLogLevel(params, LogLevel::Debug);
-        usvfsSetCrashDumpType(params, CrashDumpsType::Full);
-        usvfsSetCrashDumpPath(params, "crash.log");
-        usvfsSetProcessDelay(params, 1000);
-        InitLogging(true);
-        usvfsCreateVFS(params);
-    }
-
-    bool runProcess(const LaunchProcess& process) {
-        auto executablePath   = GetWideString(process.executable);
-        auto workingDirectory = GetWideString(process.workingDirectory);
-        // auto args             = GetWideString(process.arguments);
-
-        STARTUPINFOW si        = {};
-        si.cb                  = sizeof(si);
-        PROCESS_INFORMATION pi = {};
-
-        auto lpApplicationName  = std::wstring{executablePath};
-        auto lpWorkingDirectory = workingDirectory;
-
-        auto success = CreateProcessHooked(
-            lpApplicationName.c_str(), NULL, NULL, NULL, FALSE, 0, NULL, lpWorkingDirectory.c_str(), &si, &pi
-        );
-
-        if (success) {
-            _processHandles.push_back(pi.hProcess);
-            CloseHandle(pi.hThread);
-            return true;
-        } else {
-            std::cout << "Failed to create process" << std::endl;
-            return false;
+    void InitializeVFS() {
+        if (!_initialized) {
+            _initialized = true;
+            auto params  = usvfsCreateParameters();
+            usvfsSetInstanceName(params, "my_usvfs");
+            usvfsSetDebugMode(params, false);  // No UI popup when this is false
+            usvfsSetLogLevel(params, LogLevel::Debug);
+            usvfsSetCrashDumpType(params, CrashDumpsType::Full);
+            usvfsSetCrashDumpPath(params, "crash.log");
+            usvfsSetProcessDelay(params, 1000);
+            InitLogging(true);
+            usvfsCreateVFS(params);
         }
     }
 
-    void waitForProcesses() {
-        WaitForMultipleObjects(_processHandles.size(), _processHandles.data(), TRUE, INFINITE);
-        for (auto& handle : _processHandles) CloseHandle(handle);
-        _processHandles.clear();
-    }
-
-    void runProcesses() {
-        for (auto& process : _processes) runProcess(process);
-    }
-
 public:
-    UsvfsController() { initializeUsvfs(); }
     ~UsvfsController() { DisconnectVFS(); }
 
     bool AddVirtualLinks(const std::vector<VirtualLink>& links) {
+        InitializeVFS();
         auto success = true;
         for (auto& link : links) {
             auto sourcePath = GetWideString(link.source);
@@ -108,6 +76,7 @@ public:
     }
 
     bool LaunchProcess(const LaunchProcess& process) {
+        InitializeVFS();
         auto executablePath   = GetWideString(process.executable);
         auto workingDirectory = GetWideString(process.workingDirectory);
         // auto args             = GetWideString(process.arguments);
@@ -135,7 +104,6 @@ public:
 
     void WaitForAllProcesses(unsigned int timeoutMs = 100) {
         DWORD waitTime = timeoutMs;
-
         while (!_processHandles.empty()) {
             DWORD waitResult = WaitForMultipleObjects(
                 static_cast<DWORD>(_processHandles.size()), _processHandles.data(),
@@ -150,5 +118,13 @@ public:
                 _processHandles.erase(_processHandles.begin() + finishedIndex);
             }
         }
+    }
+
+    void KillAllProcesses() {
+        for (auto& processHandle : _processHandles) {
+            TerminateProcess(processHandle, 0);
+            CloseHandle(processHandle);
+        }
+        _processHandles.clear();
     }
 };
