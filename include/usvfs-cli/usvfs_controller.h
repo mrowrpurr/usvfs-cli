@@ -12,9 +12,7 @@
 #include "usvfs-cli/structs.h"
 
 class UsvfsController {
-    std::vector<VirtualLink>   _links;
-    std::vector<LaunchProcess> _processes;
-    std::vector<HANDLE>        _processHandles;
+    std::vector<HANDLE> _processHandles;
 
     std::wstring GetWideString(const std::string& text) {
         int wideSize = MultiByteToWideChar(CP_UTF8, 0, text.c_str(), -1, NULL, 0);
@@ -40,30 +38,9 @@ class UsvfsController {
         usvfsCreateVFS(params);
     }
 
-    void setupLinks() {
-        for (auto& link : _links) {
-            auto sourcePath = GetWideString(link.source);
-            auto targetPath = GetWideString(link.target);
-            switch (link.type) {
-                case VirtualLinkType::File:
-                    VirtualLinkFile(sourcePath.c_str(), targetPath.c_str(), {});
-                    break;
-                case VirtualLinkType::Directory:
-                    VirtualLinkDirectoryStatic(sourcePath.c_str(), targetPath.c_str(), LINKFLAG_RECURSIVE);
-                    break;
-                case VirtualLinkType::OnCreate:
-                    // targetPath: the "overwrite folder"
-                    VirtualLinkDirectoryStatic(targetPath.c_str(), sourcePath.c_str(), LINKFLAG_CREATETARGET);
-                    break;
-            }
-        }
-    }
-
     bool runProcess(const LaunchProcess& process) {
-        auto executablePath = GetWideString(process.executable);
-        std::cout << "Executable path: " << process.executable << std::endl;
+        auto executablePath   = GetWideString(process.executable);
         auto workingDirectory = GetWideString(process.workingDirectory);
-        std::cout << "Working directory: " << process.workingDirectory << std::endl;
         // auto args             = GetWideString(process.arguments);
 
         STARTUPINFOW si        = {};
@@ -73,18 +50,13 @@ class UsvfsController {
         auto lpApplicationName  = std::wstring{executablePath};
         auto lpWorkingDirectory = workingDirectory;
 
-        std::cout << "Creating process" << std::endl;
         auto success = CreateProcessHooked(
             lpApplicationName.c_str(), NULL, NULL, NULL, FALSE, 0, NULL, lpWorkingDirectory.c_str(), &si, &pi
         );
-        std::cout << "Process created" << std::endl;
 
         if (success) {
-            std::cout << "Process created successfully" << std::endl;
             _processHandles.push_back(pi.hProcess);
-            std::cout << "Process handle added" << std::endl;
             CloseHandle(pi.hThread);
-            std::cout << "Thread handle closed" << std::endl;
             return true;
         } else {
             std::cout << "Failed to create process" << std::endl;
@@ -103,18 +75,80 @@ class UsvfsController {
     }
 
 public:
-    UsvfsController(std::vector<VirtualLink> links, std::vector<LaunchProcess> processes)
-        : _links(links), _processes(processes) {}
+    UsvfsController() { initializeUsvfs(); }
+    ~UsvfsController() { DisconnectVFS(); }
 
-    void run_blocking() {
-        std::cout << "Initializing usvfs" << std::endl;
-        initializeUsvfs();
-        std::cout << "Setting up links" << std::endl;
-        setupLinks();
-        std::cout << "Running processes" << std::endl;
-        runProcesses();
-        std::cout << "Waiting for processes" << std::endl;
-        waitForProcesses();
-        DisconnectVFS();
+    bool AddVirtualLinks(const std::vector<VirtualLink>& links) {
+        auto success = true;
+        for (auto& link : links) {
+            auto sourcePath = GetWideString(link.source);
+            auto targetPath = GetWideString(link.target);
+            switch (link.type) {
+                case VirtualLinkType::File:
+                    if (!VirtualLinkFile(sourcePath.c_str(), targetPath.c_str(), {})) {
+                        success = false;
+                        std::cout << "Failed to create link for " << link.source << " -> " << link.target << std::endl;
+                    }
+                    break;
+                case VirtualLinkType::Directory:
+                    if (!VirtualLinkDirectoryStatic(sourcePath.c_str(), targetPath.c_str(), LINKFLAG_RECURSIVE)) {
+                        success = false;
+                        std::cout << "Failed to create link for " << link.source << " -> " << link.target << std::endl;
+                    }
+                    break;
+                case VirtualLinkType::OnCreate:  // targetPath: the "overwrite folder"
+                    if (!VirtualLinkDirectoryStatic(targetPath.c_str(), sourcePath.c_str(), LINKFLAG_CREATETARGET)) {
+                        success = false;
+                        std::cout << "Failed to create link for " << link.source << " -> " << link.target << std::endl;
+                    }
+                    break;
+            }
+        }
+        return success;
+    }
+
+    bool LaunchProcess(const LaunchProcess& process) {
+        auto executablePath   = GetWideString(process.executable);
+        auto workingDirectory = GetWideString(process.workingDirectory);
+        // auto args             = GetWideString(process.arguments);
+
+        STARTUPINFOW si        = {};
+        si.cb                  = sizeof(si);
+        PROCESS_INFORMATION pi = {};
+
+        auto lpApplicationName  = std::wstring{executablePath};
+        auto lpWorkingDirectory = workingDirectory;
+
+        auto success = CreateProcessHooked(
+            lpApplicationName.c_str(), NULL, NULL, NULL, FALSE, 0, NULL, lpWorkingDirectory.c_str(), &si, &pi
+        );
+
+        if (success) {
+            _processHandles.push_back(pi.hProcess);
+            CloseHandle(pi.hThread);
+            return true;
+        } else {
+            std::cout << "Failed to create process: " << process.executable << std::endl;
+            return false;
+        }
+    }
+
+    void WaitForAllProcesses(unsigned int timeoutMs = 100) {
+        DWORD waitTime = timeoutMs;
+
+        while (!_processHandles.empty()) {
+            DWORD waitResult = WaitForMultipleObjects(
+                static_cast<DWORD>(_processHandles.size()), _processHandles.data(),
+                FALSE,  // Wait for any
+                waitTime
+            );
+
+            // A process finished, close its handle and remove it from the list
+            if (waitResult >= WAIT_OBJECT_0 && waitResult < WAIT_OBJECT_0 + _processHandles.size()) {
+                size_t finishedIndex = waitResult - WAIT_OBJECT_0;
+                CloseHandle(_processHandles[finishedIndex]);
+                _processHandles.erase(_processHandles.begin() + finishedIndex);
+            }
+        }
     }
 };

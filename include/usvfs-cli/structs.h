@@ -3,16 +3,12 @@
 #include <string>
 #include <vector>
 
-struct WebSocketServerOptions {
-    bool           runServer;
-    unsigned short port;
-    std::string    serverAddress;
-};
-
 struct LaunchProcess {
     std::string executable;
     std::string arguments;
     std::string workingDirectory;
+
+    bool IsValid() const { return !executable.empty(); }
 };
 
 enum class VirtualLinkType {
@@ -28,7 +24,6 @@ struct VirtualLink {
 };
 
 struct CommandOptions {
-    WebSocketServerOptions     webSocketServerOptions;
     std::vector<LaunchProcess> processes{};
     std::vector<VirtualLink>   virtualLinks{};
 };

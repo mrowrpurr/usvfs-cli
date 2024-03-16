@@ -1,3 +1,4 @@
+#include <csignal>
 #include <iostream>
 #include <memory>
 
@@ -6,49 +7,85 @@
 
 std::unique_ptr<UsvfsController> usvfsController = nullptr;
 
+volatile std::sig_atomic_t _sigint = 0;
+
+void signalHandler(int signal) {
+    if (signal == SIGINT) _sigint = 1;
+}
+
+std::optional<LaunchProcess> ParseStandardInput(const std::string& input) {
+    try {
+        auto json = nlohmann::json::parse(input);
+        return json.template get<LaunchProcess>();
+    } catch (const nlohmann::json::parse_error& e) {
+        std::cerr << "Failed to parse JSON: " << e.what() << std::endl;
+        return std::nullopt;
+    }
+}
+
+// TODO: close all processes on SIGINT
+
 int main(int argc, char* argv[]) {
-    std::cout << "Parsing options..." << std::endl;
-
-    // std::vector<std::string> fakeArguments = {
-    //     "program.exe", "--process", "{\"path\":\"C:\\\\Program Files\\\\Notepad++\\\\notepad++.exe\"}"
-    // };
-
-    // usvfs-cli --process '{"path":"C:/Program Files/Notepad++/notepad++.exe"}' --link-directory
-    // '{"source":"C:/Code/mrowrpurr/usvfs-cli/fixtures/source_folder","target":"C:/Code/mrowrpurr/usvfs-cli/fixtures/destination_folder"}'
-
-    // std::vector<std::string> fakeArguments = {
-    //     "program.exe", "--process", "{\"path\":\"C:/Program Files/Notepad++/notepad++.exe\"}", "--link-directory",
-    //     "{\"source\":\"C:/Code/mrowrpurr/usvfs-cli/fixtures/source_folder\",\"target\":\"C:/Code/mrowrpurr/usvfs-cli/"
-    //     "fixtures/destination_folder\"}"
-    // };
-
-    // int    fakeArgc = fakeArguments.size();
-    // char** fakeArgv = new char*[fakeArgc];
-    // for (int i = 0; i < fakeArgc; i++) {
-    //     fakeArgv[i] = const_cast<char*>(fakeArguments[i].c_str());
-    // }
-    // auto parsedOptions = ParseOptions(fakeArgc, fakeArgv);
+    std::signal(SIGINT, signalHandler);
 
     auto parsedOptions = ParseOptions(argc, argv);
-    std::cout << "Parsed options" << std::endl;
-
     if (!parsedOptions) {
         std::cout << "Failed to parse options" << std::endl;
         return 1;
     }
-
-    if (parsedOptions->webSocketServerOptions.runServer) {
-        std::cout << "[TODO] Running server on port " << parsedOptions->webSocketServerOptions.port << " at "
-                  << parsedOptions->webSocketServerOptions.serverAddress << std::endl;
-    } else {
-        std::cout << "Link files/folders and run processes..." << std::endl;
-        usvfsController = std::make_unique<UsvfsController>(parsedOptions->virtualLinks, parsedOptions->processes);
-        std::cout << "Starting usvfs controller..." << std::endl;
-        usvfsController->run_blocking();
-        std::cout << "usvfs controller finished" << std::endl;
+    if (parsedOptions->virtualLinks.empty()) {
+        std::cout << "No virtual links to create" << std::endl;
+        return 1;
     }
 
-    std::cout << "Parsed options" << std::endl;
+    usvfsController = std::make_unique<UsvfsController>();
+    if (!usvfsController->AddVirtualLinks(parsedOptions->virtualLinks)) {
+        std::cout << "Some virtual links failed" << std::endl;
+    }
+    if (!parsedOptions->processes.empty()) {
+        for (const auto& process : parsedOptions->processes)
+            if (!usvfsController->LaunchProcess(process)) std::cout << "Failed to launch process" << std::endl;
+    }
+
+    std::cout << "Press CTRL-C to exit" << std::endl;
+    std::cout << "Enter JSON for new process to launch:" << std::endl;
+
+    std::string line;
+    while (std::getline(std::cin, line)) {
+        if (!line.empty()) {
+            auto process = ParseStandardInput(line);
+            if (process && process->IsValid()) {
+                if (!usvfsController->LaunchProcess(*process)) std::cout << "Failed to launch process" << std::endl;
+            } else {
+                std::cout << "Invalid input" << std::endl;
+            }
+        }
+
+        if (_sigint) {
+            std::cout << "SIGINT received, waiting for all processes to terminate..." << std::endl;
+            break;  // Exit the loop if SIGINT is received
+        }
+    }
 
     return 0;
 }
+
+// std::vector<std::string> fakeArguments = {
+//     "program.exe", "--process", "{\"path\":\"C:\\\\Program Files\\\\Notepad++\\\\notepad++.exe\"}"
+// };
+
+// usvfs-cli --process '{"path":"C:/Program Files/Notepad++/notepad++.exe"}' --link-directory
+// '{"source":"C:/Code/mrowrpurr/usvfs-cli/fixtures/source_folder","target":"C:/Code/mrowrpurr/usvfs-cli/fixtures/destination_folder"}'
+
+// std::vector<std::string> fakeArguments = {
+//     "program.exe", "--process", "{\"path\":\"C:/Program Files/Notepad++/notepad++.exe\"}", "--link-directory",
+//     "{\"source\":\"C:/Code/mrowrpurr/usvfs-cli/fixtures/source_folder\",\"target\":\"C:/Code/mrowrpurr/usvfs-cli/"
+//     "fixtures/destination_folder\"}"
+// };
+
+// int    fakeArgc = fakeArguments.size();
+// char** fakeArgv = new char*[fakeArgc];
+// for (int i = 0; i < fakeArgc; i++) {
+//     fakeArgv[i] = const_cast<char*>(fakeArguments[i].c_str());
+// }
+// auto parsedOptions = ParseOptions(fakeArgc, fakeArgv);
